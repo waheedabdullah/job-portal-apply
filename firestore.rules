@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isAdmin() {
+      return signedIn() && me().role == 'admin';
+    }
+    function isApproved() {
+      return signedIn()
+        && (me().role == 'admin' || me().get('status', 'approved') == 'approved');
+    }
+
+    // users/{uid} — apna profile ya admin
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Signup: sirf apna doc, sirf student/company role, status pending
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role in ['student', 'company']
+        && request.resource.data.status == 'pending';
+      // Approve/reject sirf admin kar sakta hai
+      allow update, delete: if isAdmin();
+    }
+
+    // jobs — sab logged-in users padh sakte hain
+    match /jobs/{jobId} {
+      allow read: if signedIn();
+      // Sirf approved company apni job post kar sakti hai
+      allow create: if isApproved()
+        && me().role == 'company'
+        && request.resource.data.companyId == request.auth.uid;
+      // Job ki company ya admin edit/delete kar sakta hai
+      allow update, delete: if isAdmin()
+        || (signedIn() && resource.data.companyId == request.auth.uid);
+    }
+
+    // applications
+    match /applications/{appId} {
+      // Student apni, company apni jobs ki, admin sab
+      allow read: if signedIn()
+        && (isAdmin()
+          || resource.data.studentId == request.auth.uid
+          || resource.data.companyId == request.auth.uid);
+      // Sirf approved student apply kar sakta hai
+      allow create: if isApproved()
+        && me().role == 'student'
+        && request.resource.data.studentId == request.auth.uid
+        && request.resource.data.status == 'pending';
+      // Company sirf status (accept/reject) change kar sakti hai
+      allow update: if signedIn()
+        && resource.data.companyId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+      // Job delete hone par company/admin cleanup kar sake
+      allow delete: if isAdmin()
+        || (signedIn()
+          && (resource.data.studentId == request.auth.uid
+            || resource.data.companyId == request.auth.uid));
+    }
+  }
+}
