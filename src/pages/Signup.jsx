@@ -107,7 +107,7 @@ export default function Signup() {
             <label>Password</label>
             <input
               type="password"
-              placeholder="Kam se kam 6 characters"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
