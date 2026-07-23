@@ -12,7 +12,7 @@ export default function AdminUsers() {
   useEffect(() => {
     return onSnapshot(collection(db, "users"), (snap) => {
       const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      // Pending sabse upar, phir newest pehle
+      // Pending first, then newest
       rows.sort((a, b) => {
         const pa = a.role !== "admin" && a.status === "pending" ? 0 : 1;
         const pb = b.role !== "admin" && b.status === "pending" ? 0 : 1;
@@ -25,9 +25,9 @@ export default function AdminUsers() {
   const setStatus = async (id, status) => {
     try {
       await updateDoc(doc(db, "users", id), { status });
-      toast.success(status === "approved" ? "User approve ho gaya." : "User reject ho gaya.");
+      toast.success(status === "approved" ? "User approved." : "User rejected.");
     } catch {
-      toast.error("Update nahi ho saka.");
+      toast.error("Could not update.");
     }
   };
 
@@ -36,7 +36,7 @@ export default function AdminUsers() {
   return (
     <>
       <h1>Users</h1>
-      <p className="muted">Naye signups approve ya reject karo.</p>
+      <p className="muted">Approve or reject new signups.</p>
 
       <div className="table-wrap" style={{ marginTop: "1.25rem" }}>
         <table>

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { auth } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
+import PasswordInput from "../components/PasswordInput";
 
 export default function Login() {
   const { user, loading } = useAuth();
@@ -24,7 +25,7 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/", { replace: true });
     } catch {
-      toast.error("Email ya password ghalat hai.");
+      toast.error("Incorrect email or password.");
     } finally {
       setSubmitting(false);
     }
@@ -33,17 +34,17 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-brand">
+        <Link to="/" className="auth-brand" style={{ textDecoration: "none", color: "inherit" }}>
           Job<span>Portal</span>
-        </div>
-        <p className="auth-sub">Apne account mein login karo</p>
+        </Link>
+        <p className="auth-sub">Sign in to your account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="field">
             <label>Email</label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -51,9 +52,8 @@ export default function Login() {
           </div>
           <div className="field">
             <label>Password</label>
-            <input
-              type="password"
-              placeholder="Password"
+            <PasswordInput
+              placeholder="Type your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -65,7 +65,7 @@ export default function Login() {
         </form>
 
         <p className="auth-foot">
-          Account nahi hai? <Link to="/signup">Signup karo</Link>
+          Don't have an account? <Link to="/signup">Sign up</Link>
         </p>
       </div>
     </div>

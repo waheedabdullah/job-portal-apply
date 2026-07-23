@@ -28,8 +28,8 @@ export function AuthProvider({ children }) {
 
       setUser(firebaseUser);
 
-      // Live listener: signup ke waqt doc thodi der baad banta hai,
-      // aur admin approve kare to status turant update hota hai.
+      // Live listener: during signup the doc is written a moment after auth,
+      // and when admin approves, status updates immediately.
       unsubProfile = onSnapshot(
         doc(db, "users", firebaseUser.uid),
         (snap) => {
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const role = profile?.role || null;
-  // Admin hamesha approved. Purane docs (jinme status field nahi) bhi approved.
+  // Admin is always approved. Older docs without a status field are treated as approved.
   const status = !profile
     ? null
     : role === "admin"

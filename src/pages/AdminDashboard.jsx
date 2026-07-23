@@ -11,7 +11,7 @@ export default function AdminDashboard() {
         <LogoutButton />
       </header>
       <p>Welcome, {user?.email}</p>
-      <p>Yahan admin users aur jobs manage karega (next step).</p>
+      <p>Manage users and jobs from here.</p>
     </div>
   );
 }

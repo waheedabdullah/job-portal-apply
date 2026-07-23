@@ -6,9 +6,10 @@ import { toast } from "react-toastify";
 import { auth, db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import Loader from "../components/Loader";
+import PasswordInput from "../components/PasswordInput";
 
-// Sirf Student aur Company signup kar sakte hain.
-// Naya account "pending" status ke sath banta hai — admin approve karega.
+// Only Student and Company can sign up.
+// New accounts are created with "pending" status — admin will approve.
 export default function Signup() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -32,17 +33,17 @@ export default function Signup() {
         name: name.trim(),
         email,
         role, // "student" | "company"
-        status: "pending", // admin approval ka intezar
+        status: "pending", // waiting for admin approval
         createdAt: serverTimestamp(),
       });
 
-      toast.success("Account ban gaya! Admin approval ke baad access milega.");
+      toast.success("Account created! You will get access after admin approval.");
       navigate("/", { replace: true });
     } catch (err) {
       toast.error(
         err.code === "auth/email-already-in-use"
-          ? "Ye email pehle se registered hai."
-          : "Signup nahi ho saka, dobara try karo."
+          ? "This email is already registered."
+          : "Signup failed. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -52,10 +53,10 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-brand">
+        <Link to="/" className="auth-brand" style={{ textDecoration: "none", color: "inherit" }}>
           Job<span>Portal</span>
-        </div>
-        <p className="auth-sub">Naya account banao</p>
+        </Link>
+        <p className="auth-sub">Create a new account</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="role-select">
@@ -68,7 +69,7 @@ export default function Signup() {
                 onChange={() => setRole("student")}
               />
               <span className="role-title">Student</span>
-              <span className="role-desc">Jobs dekho aur apply karo</span>
+              <span className="role-desc">Browse jobs and apply</span>
             </label>
             <label className={role === "company" ? "role-option selected" : "role-option"}>
               <input
@@ -79,7 +80,7 @@ export default function Signup() {
                 onChange={() => setRole("company")}
               />
               <span className="role-title">Company</span>
-              <span className="role-desc">Jobs post karo, hire karo</span>
+              <span className="role-desc">Post jobs and hire talent</span>
             </label>
           </div>
 
@@ -87,7 +88,7 @@ export default function Signup() {
             <label>{role === "company" ? "Company Name" : "Full Name"}</label>
             <input
               type="text"
-              placeholder={role === "company" ? "e.g. ABC Technologies" : "e.g. Ali Khan"}
+              placeholder={role === "company" ? "Enter your company name" : "Enter your name"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -97,7 +98,7 @@ export default function Signup() {
             <label>Email</label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -105,8 +106,7 @@ export default function Signup() {
           </div>
           <div className="field">
             <label>Password</label>
-            <input
-              type="password"
+            <PasswordInput
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -121,7 +121,7 @@ export default function Signup() {
         </form>
 
         <p className="auth-foot">
-          Already account hai? <Link to="/login">Login karo</Link>
+          Already have an account? <Link to="/login">Log in</Link>
         </p>
       </div>
     </div>

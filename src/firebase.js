@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Aapka existing Firebase project config (job-portal-apply)
+// Existing Firebase project config (job-portal-apply)
 const firebaseConfig = {
   apiKey: "AIzaSyB-yNYoBgVCE0wtjLeuKghEDmGC9KZCacs",
   authDomain: "job-portal-apply.firebaseapp.com",

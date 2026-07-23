@@ -20,11 +20,11 @@ export default function PendingApproval() {
           Job<span>Portal</span>
         </div>
         <StatusBadge value={rejected ? "rejected" : "pending"} />
-        <h1>{rejected ? "Request Reject Ho Gayi" : "Admin Approval Pending"}</h1>
+        <h1>{rejected ? "Request Rejected" : "Admin Approval Pending"}</h1>
         <p className="muted">
           {rejected
-            ? "Maazrat, admin ne aapki request reject kar di hai. Mazeed maloomat ke liye admin se raabta karein."
-            : "Aapka account ban gaya hai. Admin approve karega to aapko turant access mil jayega — ye page khud update ho jayega."}
+            ? "Sorry, the admin rejected your request. Please contact the admin for more information."
+            : "Your account has been created. Once an admin approves it, you will get access automatically — this page will update on its own."}
         </p>
         <p className="muted">
           Logged in as: <strong>{profile?.email || user.email}</strong>

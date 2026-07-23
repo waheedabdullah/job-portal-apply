@@ -54,9 +54,9 @@ export default function StudentDashboard() {
         status: "pending",
         createdAt: serverTimestamp(),
       });
-      toast.success("Application bhej di gayi!");
+      toast.success("Application submitted!");
     } catch {
-      toast.error("Apply nahi ho saka, dobara try karo.");
+      toast.error("Could not apply. Please try again.");
     } finally {
       setApplyingId(null);
     }
@@ -67,7 +67,7 @@ export default function StudentDashboard() {
       <Navbar subtitle="Student" />
       <div className="container">
         <h1>Student Dashboard</h1>
-        <p className="muted">Jobs browse karo aur apply karo.</p>
+        <p className="muted">Browse jobs and apply.</p>
 
         <div className="tabs">
           <button
@@ -91,7 +91,7 @@ export default function StudentDashboard() {
             <Loader />
           ) : jobs.length === 0 ? (
             <div className="card empty">
-              Abhi koi job available nahi hai. Baad mein check karo.
+              No jobs available right now. Please check again later.
             </div>
           ) : (
             <div className="card-grid">
@@ -133,7 +133,7 @@ export default function StudentDashboard() {
             <Loader />
           ) : apps.length === 0 ? (
             <div className="card empty">
-              Abhi tak kisi job par apply nahi kiya. "Browse Jobs" se shuru karo.
+              You have not applied to any jobs yet. Start from "Browse Jobs".
             </div>
           ) : (
             <div className="table-wrap">

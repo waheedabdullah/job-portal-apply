@@ -23,16 +23,16 @@ export default function AdminJobs() {
   }, []);
 
   const deleteJob = async (jobId) => {
-    if (!window.confirm("Ye job aur iski saari applications delete ho jayengi. Pakka?")) return;
+    if (!window.confirm("This job and all its applications will be deleted. Are you sure?")) return;
     try {
       const appsSnap = await getDocs(
         query(collection(db, "applications"), where("jobId", "==", jobId))
       );
       await Promise.all(appsSnap.docs.map((d) => deleteDoc(d.ref)));
       await deleteDoc(doc(db, "jobs", jobId));
-      toast.success("Job delete ho gayi.");
+      toast.success("Job deleted successfully.");
     } catch {
-      toast.error("Delete nahi ho saka.");
+      toast.error("Could not delete.");
     }
   };
 
@@ -41,11 +41,11 @@ export default function AdminJobs() {
   return (
     <>
       <h1>Jobs</h1>
-      <p className="muted">Portal ki saari jobs — zaroorat par delete karo.</p>
+      <p className="muted">All jobs on the portal — delete if needed.</p>
 
       {jobs.length === 0 ? (
         <div className="card empty" style={{ marginTop: "1.25rem" }}>
-          Abhi koi job post nahi hui.
+          No jobs have been posted yet.
         </div>
       ) : (
         <div className="table-wrap" style={{ marginTop: "1.25rem" }}>

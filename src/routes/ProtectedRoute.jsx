@@ -12,12 +12,12 @@ export default function ProtectedRoute({ allowedRoles, children }) {
   const { user, role, status, loading } = useAuth();
 
   if (loading) return <Loader full />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
-  // Role doc hi nahi mila → "/" par NoRole screen dikhegi
+  // Role doc not found → NoRole screen on "/"
   if (!role) return <Navigate to="/" replace />;
 
-  // Student/Company jab tak approved nahi → pending screen
+  // Student/Company not approved yet → pending screen
   if (status !== "approved") return <Navigate to="/pending" replace />;
 
   if (allowedRoles && !allowedRoles.includes(role)) {

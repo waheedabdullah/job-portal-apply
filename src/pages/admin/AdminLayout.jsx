@@ -18,6 +18,7 @@ export default function AdminLayout() {
           </NavLink>
           <NavLink to="/admin/users">Users</NavLink>
           <NavLink to="/admin/jobs">Jobs</NavLink>
+          <NavLink to="/admin/applicants">Applicants</NavLink>
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">

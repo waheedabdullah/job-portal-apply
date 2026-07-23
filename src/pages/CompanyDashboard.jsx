@@ -4,7 +4,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
@@ -68,7 +67,7 @@ export default function CompanyDashboard() {
     try {
       if (editingId) {
         await updateDoc(doc(db, "jobs", editingId), { ...form });
-        toast.success("Job update ho gayi.");
+        toast.success("Job updated successfully.");
       } else {
         await addDoc(collection(db, "jobs"), {
           ...form,
@@ -76,12 +75,12 @@ export default function CompanyDashboard() {
           companyName: profile?.name || "",
           createdAt: serverTimestamp(),
         });
-        toast.success("Job post ho gayi!");
+        toast.success("Job posted successfully!");
       }
       resetForm();
       setTab("jobs");
     } catch {
-      toast.error("Save nahi ho saka, dobara try karo.");
+      toast.error("Could not save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -100,25 +99,26 @@ export default function CompanyDashboard() {
   };
 
   const deleteJob = async (jobId) => {
-    if (!window.confirm("Ye job aur iski saari applications delete ho jayengi. Pakka?")) return;
+    if (!window.confirm("This job and all its applications will be deleted. Are you sure?")) return;
     try {
-      const appsSnap = await getDocs(
-        query(collection(db, "applications"), where("jobId", "==", jobId))
+      // Only delete this company's related apps (Firestore rules require companyId match)
+      const relatedApps = (apps || []).filter((a) => a.jobId === jobId);
+      await Promise.all(
+        relatedApps.map((a) => deleteDoc(doc(db, "applications", a.id)))
       );
-      await Promise.all(appsSnap.docs.map((d) => deleteDoc(d.ref)));
       await deleteDoc(doc(db, "jobs", jobId));
-      toast.success("Job delete ho gayi.");
+      toast.success("Job deleted successfully.");
     } catch {
-      toast.error("Delete nahi ho saka.");
+      toast.error("Could not delete.");
     }
   };
 
   const setAppStatus = async (appId, status) => {
     try {
       await updateDoc(doc(db, "applications", appId), { status });
-      toast.success(status === "accepted" ? "Application accept ho gayi." : "Application reject ho gayi.");
+      toast.success(status === "accepted" ? "Application accepted." : "Application rejected.");
     } catch {
-      toast.error("Update nahi ho saka.");
+      toast.error("Could not update.");
     }
   };
 
@@ -129,7 +129,7 @@ export default function CompanyDashboard() {
       <Navbar subtitle="Company" />
       <div className="container">
         <h1>Company Dashboard</h1>
-        <p className="muted">Jobs post karo aur applications manage karo.</p>
+        <p className="muted">Post jobs and manage applications.</p>
 
         <div className="tabs">
           <button
@@ -160,7 +160,7 @@ export default function CompanyDashboard() {
             <Loader />
           ) : jobs.length === 0 ? (
             <div className="card empty">
-              Abhi koi job post nahi ki. "Post Job" tab se pehli job post karo.
+              No jobs posted yet. Use the "Post Job" tab to create your first job.
             </div>
           ) : (
             <div className="card-grid">
@@ -202,7 +202,7 @@ export default function CompanyDashboard() {
 
         {tab === "post" && (
           <form className="card form-card" onSubmit={handleSubmit}>
-            <h2>{editingId ? "Job Edit Karo" : "Nayi Job Post Karo"}</h2>
+            <h2>{editingId ? "Edit Job" : "Post a New Job"}</h2>
             <div className="form-row">
               <div className="field">
                 <label>Job Title</label>
@@ -249,7 +249,7 @@ export default function CompanyDashboard() {
                 rows={5}
                 value={form.description}
                 onChange={setField("description")}
-                placeholder="Job ki requirements aur details likho..."
+                placeholder="Write the job requirements and details..."
                 required
               />
             </div>
@@ -270,7 +270,7 @@ export default function CompanyDashboard() {
           (apps === null ? (
             <Loader />
           ) : apps.length === 0 ? (
-            <div className="card empty">Abhi koi application nahi aayi.</div>
+            <div className="card empty">No applications yet.</div>
           ) : (
             <div className="table-wrap">
               <table>
