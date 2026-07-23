@@ -17,6 +17,7 @@ import Navbar from "../components/Navbar";
 import StatusBadge from "../components/StatusBadge";
 import Loader from "../components/Loader";
 import { byNewest, formatDate } from "../utils/format";
+import { writeJobDescriptionWithAI } from "../services/analyzeCv";
 
 const emptyForm = {
   title: "",
@@ -34,6 +35,7 @@ export default function CompanyDashboard() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [writingAi, setWritingAi] = useState(false);
 
   useEffect(() => {
     const unsubJobs = onSnapshot(
@@ -55,6 +57,20 @@ export default function CompanyDashboard() {
   }, [user.uid]);
 
   const setField = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const writeWithAi = async () => {
+    setWritingAi(true);
+    try {
+      const description = await writeJobDescriptionWithAI(form, profile?.name || "");
+      setForm((f) => ({ ...f, description }));
+      toast.success(form.description.trim() ? "Description improved with AI." : "Description written with AI.");
+    } catch (err) {
+      toast.error(err.message || "AI write failed.");
+    } finally {
+      setWritingAi(false);
+    }
+  };
+
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -129,7 +145,7 @@ export default function CompanyDashboard() {
       <Navbar subtitle="Company" />
       <div className="container">
         <h1>Company Dashboard</h1>
-        <p className="muted">Post jobs and manage applications.</p>
+        <p className="muted">Post jobs with AI-written descriptions and manage applications.</p>
 
         <div className="tabs">
           <button
@@ -244,17 +260,34 @@ export default function CompanyDashboard() {
               </div>
             </div>
             <div className="field">
-              <label>Description</label>
+              <div className="section-head" style={{ marginBottom: 0 }}>
+                <label>Description</label>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  disabled={writingAi || saving || !form.title.trim()}
+                  onClick={writeWithAi}
+                >
+                  {writingAi
+                    ? "Writing..."
+                    : form.description.trim()
+                      ? "Improve with AI"
+                      : "Write with AI"}
+                </button>
+              </div>
+              <p className="muted" style={{ fontSize: "0.85rem" }}>
+                Fill Job Title (and optional location/type), then click Write with AI.
+              </p>
               <textarea
-                rows={5}
+                rows={8}
                 value={form.description}
                 onChange={setField("description")}
-                placeholder="Write the job requirements and details..."
+                placeholder="Write the job requirements and details, or use Write with AI..."
                 required
               />
             </div>
             <div className="row-actions">
-              <button type="submit" className="btn btn-primary" disabled={saving}>
+              <button type="submit" className="btn btn-primary" disabled={saving || writingAi}>
                 {saving ? "Saving..." : editingId ? "Update Job" : "Post Job"}
               </button>
               {editingId && (
